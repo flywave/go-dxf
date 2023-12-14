@@ -8,15 +8,15 @@ import (
 	"io"
 	"os"
 
-	"github.com/yofu/dxf/block"
-	"github.com/yofu/dxf/class"
-	"github.com/yofu/dxf/color"
-	"github.com/yofu/dxf/entity"
-	"github.com/yofu/dxf/format"
-	"github.com/yofu/dxf/handle"
-	"github.com/yofu/dxf/header"
-	"github.com/yofu/dxf/object"
-	"github.com/yofu/dxf/table"
+	"github.com/flywave/go-dxf/block"
+	"github.com/flywave/go-dxf/class"
+	"github.com/flywave/go-dxf/color"
+	"github.com/flywave/go-dxf/entity"
+	"github.com/flywave/go-dxf/format"
+	"github.com/flywave/go-dxf/handle"
+	"github.com/flywave/go-dxf/header"
+	"github.com/flywave/go-dxf/object"
+	"github.com/flywave/go-dxf/table"
 )
 
 // Drawing contains DXF drawing data.

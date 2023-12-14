@@ -5,14 +5,13 @@ package dxf
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"strings"
 
-	"github.com/yofu/dxf/color"
-	"github.com/yofu/dxf/drawing"
-	"github.com/yofu/dxf/table"
+	"github.com/flywave/go-dxf/color"
+	"github.com/flywave/go-dxf/drawing"
+	"github.com/flywave/go-dxf/table"
 )
 
 // Default values.
@@ -73,11 +72,12 @@ func FromReader(r io.Reader) (*drawing.Drawing, error) {
 			value = scanner.Text()
 			if setparser {
 				if code != "2" {
-					return d, fmt.Errorf("line %d: invalid group code: %s", line, code)
+					// return d, fmt.Errorf("FromReader line %d: invalid group code: %s", line, code)
+					continue
 				}
 				ind := drawing.SectionTypeValue(strings.ToUpper(value))
 				if ind < 0 {
-					return d, fmt.Errorf("line %d: unknown section name: %s", line, value)
+					continue
 				}
 				parser = parsers[ind]
 				startline = line + 1

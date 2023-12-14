@@ -6,13 +6,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/yofu/dxf/block"
-	"github.com/yofu/dxf/color"
-	"github.com/yofu/dxf/drawing"
-	"github.com/yofu/dxf/entity"
-	"github.com/yofu/dxf/header"
-	"github.com/yofu/dxf/insunit"
-	"github.com/yofu/dxf/table"
+	"github.com/flywave/go-dxf/block"
+	"github.com/flywave/go-dxf/color"
+	"github.com/flywave/go-dxf/drawing"
+	"github.com/flywave/go-dxf/entity"
+	"github.com/flywave/go-dxf/header"
+	"github.com/flywave/go-dxf/insunit"
+	"github.com/flywave/go-dxf/table"
 )
 
 // setFloat sets a floating point number to a variable using given function.
@@ -128,7 +128,7 @@ func ParseTables(d *drawing.Drawing, line int, data [][2]string) error {
 	for i, dt := range data {
 		if setparser {
 			if dt[0] != "2" {
-				return fmt.Errorf("line %d: invalid group code: %s", line+2*i, dt[0])
+				return fmt.Errorf("ParseTables line %d: invalid group code: %s", line+2*i, dt[0])
 			}
 			ind = int(table.TableTypeValue(strings.ToUpper(dt[1])))
 			if ind < 0 {
@@ -530,7 +530,9 @@ func ParseEntities(d *drawing.Drawing, line int, data [][2]string) error {
 				if err != nil {
 					return fmt.Errorf("line %d: %s", line+2*i, err.Error())
 				}
-				d.AddEntity(e)
+				if e != nil {
+					d.AddEntity(e)
+				}
 				tmpdata = make([][2]string, 0)
 			}
 		}
@@ -541,8 +543,9 @@ func ParseEntities(d *drawing.Drawing, line int, data [][2]string) error {
 		if err != nil {
 			return fmt.Errorf("line %d: %s", line+2*len(data), err.Error())
 		}
-		d.AddEntity(e)
-		tmpdata = make([][2]string, 0)
+		if e != nil {
+			d.AddEntity(e)
+		}
 	}
 	return nil
 }
@@ -553,11 +556,14 @@ func ParseEntity(d *drawing.Drawing, data [][2]string) (entity.Entity, error) {
 		return nil, fmt.Errorf("no data")
 	}
 	if data[0][0] != "0" {
-		return nil, fmt.Errorf("invalid group code: %q", data[0][0])
+		return nil, fmt.Errorf("ParseEntity invalid group code: %q", data[0][0])
 	}
 	f, err := ParseEntityFunc(data[0][1])
 	if err != nil {
 		return nil, err
+	}
+	if f == nil {
+		return nil, nil
 	}
 	return f(d, data)
 }
@@ -583,6 +589,8 @@ func ParseEntityFunc(t string) (func(*drawing.Drawing, [][2]string) (entity.Enti
 		return ParsePoint, nil
 	case "TEXT":
 		return ParseText, nil
+	case "HATCH", "THUMBNAILIMAGE":
+		return nil, nil
 	default:
 		return nil, errors.New("unknown entity type")
 	}

@@ -1,8 +1,8 @@
 package block
 
 import (
-	"github.com/yofu/dxf/format"
-	"github.com/yofu/dxf/table"
+	"github.com/flywave/go-dxf/format"
+	"github.com/flywave/go-dxf/table"
 )
 
 // Block represents each BLOCK.

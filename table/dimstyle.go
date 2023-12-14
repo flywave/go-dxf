@@ -1,8 +1,8 @@
 package table
 
 import (
-	"github.com/yofu/dxf/format"
-	"github.com/yofu/dxf/handle"
+	"github.com/flywave/go-dxf/format"
+	"github.com/flywave/go-dxf/handle"
 )
 
 // DimStyle represents DIMSTYLE SymbolTable.

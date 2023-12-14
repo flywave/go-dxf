@@ -1,22 +1,26 @@
-package dxf
+package dxf_test
 
 import (
 	"bytes"
 	"crypto/sha1"
+	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/yofu/dxf/color"
-	"github.com/yofu/dxf/insunit"
-	"github.com/yofu/dxf/table"
+	"github.com/flywave/go-dxf"
+	"github.com/flywave/go-dxf/color"
+	geom "github.com/flywave/go-dxf/convert_geom"
+	"github.com/flywave/go-dxf/insunit"
+	"github.com/flywave/go-dxf/table"
+	fgeom "github.com/flywave/go-geom"
 
-	"github.com/yofu/dxf/drawing"
-	"github.com/yofu/dxf/entity"
+	"github.com/flywave/go-dxf/drawing"
+	"github.com/flywave/go-dxf/entity"
+	vec2d "github.com/flywave/go3d/float64/vec2"
 )
 
 // TOLERANCE is the epsilon value used in comparing floats.
@@ -77,7 +81,7 @@ func hashFile(filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	text, err := ioutil.ReadAll(f)
+	text, err := io.ReadAll(f)
 	f.Close()
 	if err != nil {
 		return "", err
@@ -95,11 +99,11 @@ func TestFromStringData(t *testing.T) {
 		return tc.filename, func(t *testing.T) {
 			tfile := filepath.Join("testdata", tc.filename)
 
-			data, err := ioutil.ReadFile(tfile)
+			data, err := os.ReadFile(tfile)
 			if err != nil {
 				t.Errorf("file, could not open file %v : %v", tfile, err)
 			}
-			d, err := FromStringData(string(data))
+			d, err := dxf.FromStringData(string(data))
 			if err != nil {
 				t.Errorf("error, expected nil, got %v", err)
 				return
@@ -159,7 +163,7 @@ func TestFromFile(t *testing.T) {
 	fn := func(tc tcase) (string, func(*testing.T)) {
 		return tc.filename, func(t *testing.T) {
 			tfile := filepath.Join("testdata", tc.filename)
-			d, err := FromFile(tfile)
+			d, err := dxf.FromFile(tfile)
 			if err != nil {
 				t.Errorf("error, expected nil, got %v", err)
 				return
@@ -288,7 +292,7 @@ func TestNewDrawing(t *testing.T) {
 			filename: "torus.dxf",
 			draw: func(d *drawing.Drawing) {
 				d.Header().LtScale = 100.0
-				d.AddLayer("Toroidal", DefaultColor, DefaultLineType, true)
+				d.AddLayer("Toroidal", dxf.DefaultColor, dxf.DefaultLineType, true)
 				d.AddLayer("Poloidal", color.Red, table.LT_HIDDEN, true)
 				z := 0.0
 				r1 := 200.0
@@ -301,7 +305,7 @@ func TestNewDrawing(t *testing.T) {
 					d.Circle(0.0, 0.0, z+r1*math.Cos(theta), r2-r1*math.Sin(theta))
 					d.ChangeLayer("Poloidal")
 					c, _ := d.Circle(r2*math.Cos(theta), r2*math.Sin(theta), 0.0, r1)
-					SetExtrusion(c, []float64{-1.0 * math.Sin(theta), math.Cos(theta), 0.0})
+					dxf.SetExtrusion(c, []float64{-1.0 * math.Sin(theta), math.Cos(theta), 0.0})
 					theta += dtheta
 				}
 			},
@@ -318,4 +322,40 @@ func TestNewDrawing(t *testing.T) {
 		t.Run(fn(tc))
 	}
 
+}
+
+func TestDistance(t *testing.T) {
+	p1 := &vec2d.T{0, 5}
+
+	p2 := &vec2d.T{0, 0}
+	p3 := &vec2d.T{5, 5}
+
+	dis := vec2d.PointSegmentDistance(p1, p2, p3)
+	fmt.Println(dis)
+	d2 := math.Pow(dis, 2)
+	fmt.Println(math.Sqrt(d2 * 2))
+}
+func TestDwg(t *testing.T) {
+	d, err := geom.ConvertToGeomFeatures("/home/hj/下载/1551902023-9-26-229137175230156172.dxf")
+	if err != nil {
+		t.Errorf("error, expected nil, got %v", err)
+		return
+	}
+	col := d["已完成巷道"]
+	bt, _ := col.MarshalJSON()
+	os.WriteFile("/home/hj/已完成巷道.json", bt, os.ModePerm)
+}
+
+func TestMeger(t *testing.T) {
+	d, err := os.ReadFile("/home/hj/已完成巷道.json")
+	if err != nil {
+		t.Errorf("error, expected nil, got %v", err)
+		return
+	}
+
+	col := fgeom.NewFeatureCollection()
+	json.Unmarshal(d, col)
+	col2 := geom.GenMidLine(col, 10)
+	bt, _ := col2.MarshalJSON()
+	os.WriteFile("/home/hj/meger.json", bt, os.ModePerm)
 }

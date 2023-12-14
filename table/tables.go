@@ -2,7 +2,7 @@
 package table
 
 import (
-	"github.com/yofu/dxf/format"
+	"github.com/flywave/go-dxf/format"
 )
 
 // Tables represents TABLES section.

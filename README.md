@@ -16,9 +16,9 @@ is only supported.
 package main
 
 import (
-	"github.com/yofu/dxf"
-	"github.com/yofu/dxf/color"
-	"github.com/yofu/dxf/table"
+	"github.com/flywave/go-dxf"
+	"github.com/flywave/go-dxf/color"
+	"github.com/flywave/go-dxf/table"
 	"log"
 	"math"
 )
@@ -54,7 +54,7 @@ func main() {
 ## Installation
 
 ```
-$ go get github.com/yofu/dxf
+$ go get github.com/flywave/go-dxf
 ```
 
 # License

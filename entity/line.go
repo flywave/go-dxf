@@ -3,7 +3,7 @@ package entity
 import (
 	"math"
 
-	"github.com/yofu/dxf/format"
+	"github.com/flywave/go-dxf/format"
 )
 
 // Line represents LINE Entity.

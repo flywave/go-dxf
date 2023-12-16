@@ -3,7 +3,6 @@ package dxf_test
 import (
 	"bytes"
 	"crypto/sha1"
-	"encoding/json"
 	"fmt"
 	"io"
 	"math"
@@ -16,7 +15,7 @@ import (
 	geom "github.com/flywave/go-dxf/convert_geom"
 	"github.com/flywave/go-dxf/insunit"
 	"github.com/flywave/go-dxf/table"
-	fgeom "github.com/flywave/go-geom"
+	"github.com/flywave/go-geom/general"
 
 	"github.com/flywave/go-dxf/drawing"
 	"github.com/flywave/go-dxf/entity"
@@ -353,8 +352,7 @@ func TestMeger(t *testing.T) {
 		return
 	}
 
-	col := fgeom.NewFeatureCollection()
-	json.Unmarshal(d, col)
+	col, _ := general.UnmarshalFeatureCollection(d)
 	col2 := geom.GenMidLine(col, 10)
 	bt, _ := col2.MarshalJSON()
 	os.WriteFile("/home/hj/meger.json", bt, os.ModePerm)

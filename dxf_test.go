@@ -335,25 +335,38 @@ func TestDistance(t *testing.T) {
 	fmt.Println(math.Sqrt(d2 * 2))
 }
 func TestDwg(t *testing.T) {
-	d, err := geom.ConvertToGeomFeatures("/home/hj/下载/1551902023-9-26-229137175230156172.dxf")
+	d, err := geom.ConvertToGeomFeatures("testdata/修改余吾煤业采掘工程平面图2023.9.26.dxf")
 	if err != nil {
 		t.Errorf("error, expected nil, got %v", err)
 		return
 	}
 	col := d["已完成巷道"]
 	bt, _ := col.MarshalJSON()
-	os.WriteFile("/home/hj/已完成巷道.json", bt, os.ModePerm)
+	os.WriteFile("testdata/已完成巷道.json", bt, os.ModePerm)
 }
 
 func TestMeger(t *testing.T) {
-	d, err := os.ReadFile("/home/hj/已完成巷道.json")
+	d, err := os.ReadFile("testdata/已完成巷道.json")
 	if err != nil {
 		t.Errorf("error, expected nil, got %v", err)
 		return
 	}
 
 	col, _ := general.UnmarshalFeatureCollection(d)
-	col2 := geom.GenMidLine(col, 10)
+	col2 := geom.GenMidLine(col, &geom.MiddleLineOpts{SearchExtend: 10, MaxWidth: 10, MinWidth: 2.6, LineMinlength: 5})
 	bt, _ := col2.MarshalJSON()
-	os.WriteFile("/home/hj/meger.json", bt, os.ModePerm)
+	os.WriteFile("testdata/meger.json", bt, os.ModePerm)
+}
+
+func TestMeger2(t *testing.T) {
+	d, err := os.ReadFile("testdata/part.geojson")
+	if err != nil {
+		t.Errorf("error, expected nil, got %v", err)
+		return
+	}
+
+	col, _ := general.UnmarshalFeatureCollection(d)
+	col2 := geom.GenMidLine(col, &geom.MiddleLineOpts{SearchExtend: 10, MaxWidth: 10, MinWidth: 2.6, LineMinlength: 10})
+	bt, _ := col2.MarshalJSON()
+	os.WriteFile("testdata/meger2.json", bt, os.ModePerm)
 }

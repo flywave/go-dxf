@@ -335,14 +335,25 @@ func TestDistance(t *testing.T) {
 	fmt.Println(math.Sqrt(d2 * 2))
 }
 func TestDwg(t *testing.T) {
-	d, err := geom.ConvertToGeomFeatures("testdata/修改余吾煤业采掘工程平面图2023.9.26.dxf")
+	d, err := geom.ConvertToGeomFeatures("testdata/修改余吾煤业采掘工程平面图2023.9.26.dxf", "Point")
 	if err != nil {
 		t.Errorf("error, expected nil, got %v", err)
 		return
 	}
-	col := d["已完成巷道"]
+	col := d["巷道导线点"]
 	bt, _ := col.MarshalJSON()
-	os.WriteFile("testdata/已完成巷道.json", bt, os.ModePerm)
+	os.WriteFile("testdata/巷道导线点.json", bt, os.ModePerm)
+}
+
+func TestDwg2(t *testing.T) {
+	d, err := geom.ConvertToGeomFeatures("testdata/11-3布尔台煤矿42煤采掘工程平面图.dxf", "")
+	if err != nil {
+		t.Errorf("error, expected nil, got %v", err)
+		return
+	}
+	col := d["22煤巷道"]
+	bt, _ := col.MarshalJSON()
+	os.WriteFile("testdata/22煤巷道.json", bt, os.ModePerm)
 }
 
 func TestMeger(t *testing.T) {
@@ -353,7 +364,8 @@ func TestMeger(t *testing.T) {
 	}
 
 	col, _ := general.UnmarshalFeatureCollection(d)
-	col2 := geom.GenMidLine(col, &geom.MiddleLineOpts{SearchExtend: 10, MaxWidth: 10, MinWidth: 2.6, LineMinlength: 5})
+	col2 := geom.GenCenterLine(col, &geom.CenterLineOpts{SearchExtend: 10, MaxWidth: 10, MinWidth: 1.5, LineMinlength: 5})
+	geom.MegerCenterLine(col2, &geom.MegerOpts{SearchRadius: 10, Distance: 1})
 	bt, _ := col2.MarshalJSON()
 	os.WriteFile("testdata/meger.json", bt, os.ModePerm)
 }
@@ -366,7 +378,34 @@ func TestMeger2(t *testing.T) {
 	}
 
 	col, _ := general.UnmarshalFeatureCollection(d)
-	col2 := geom.GenMidLine(col, &geom.MiddleLineOpts{SearchExtend: 10, MaxWidth: 10, MinWidth: 2.6, LineMinlength: 10})
+	col2 := geom.GenCenterLine(col, &geom.CenterLineOpts{SearchExtend: 10, MaxWidth: 10, MinWidth: 1.5, LineMinlength: 10})
+	geom.MegerCenterLine(col2, &geom.MegerOpts{SearchRadius: 10, Distance: 1})
 	bt, _ := col2.MarshalJSON()
 	os.WriteFile("testdata/meger2.json", bt, os.ModePerm)
+}
+
+func TestMeger3(t *testing.T) {
+	d, err := os.ReadFile("testdata/meger.json")
+	if err != nil {
+		t.Errorf("error, expected nil, got %v", err)
+		return
+	}
+
+	col2, _ := general.UnmarshalFeatureCollection(d)
+	geom.MegerCenterLine(col2, &geom.MegerOpts{SearchRadius: 10, Distance: 2})
+	bt, _ := col2.MarshalJSON()
+	os.WriteFile("testdata/meger3.json", bt, os.ModePerm)
+}
+
+func TestMeger4(t *testing.T) {
+	d, err := os.ReadFile("testdata/part.geojson")
+	if err != nil {
+		t.Errorf("error, expected nil, got %v", err)
+		return
+	}
+
+	col2, _ := general.UnmarshalFeatureCollection(d)
+	geom.MegerCenterLine(col2, &geom.MegerOpts{SearchRadius: 10, Distance: 2})
+	bt, _ := col2.MarshalJSON()
+	os.WriteFile("testdata/meger4.json", bt, os.ModePerm)
 }

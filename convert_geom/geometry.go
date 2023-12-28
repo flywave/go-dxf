@@ -10,7 +10,7 @@ import (
 	"github.com/pborman/uuid"
 )
 
-func ConvertToGeomFeatures(inputFile string) (map[string]*geom.FeatureCollection, error) {
+func ConvertToGeomFeatures(inputFile string, ty string) (map[string]*geom.FeatureCollection, error) {
 	draw, err := dxf.FromFile(inputFile)
 	if err != nil {
 		return nil, err
@@ -20,7 +20,7 @@ func ConvertToGeomFeatures(inputFile string) (map[string]*geom.FeatureCollection
 	ents := draw.Entities()
 
 	fn := func(layerName string, f *geom.Feature) {
-		if f == nil {
+		if f == nil || (ty != "" && string(f.GeometryData.Type) != ty) {
 			return
 		}
 

@@ -581,15 +581,15 @@ func ParseEntityFunc(t string) (func(*drawing.Drawing, [][2]string) (entity.Enti
 		return ParseCircle, nil
 	case "ARC":
 		return ParseArc, nil
-	// case "POLYLINE":
-	// 	return ParsePolyline, nil
+	case "POLYLINE", "VERTEX", "SEQEND", "SPLINE", "ELLIPSE", "MTEXT", "WIPEOUT", "LEADER", "VIEWPORT":
+		return nil, nil
 	// case "VERTEX":
 	// 	return ParseVertex, nil
 	case "POINT":
 		return ParsePoint, nil
 	case "TEXT":
 		return ParseText, nil
-	case "HATCH", "THUMBNAILIMAGE":
+	case "HATCH", "THUMBNAILIMAGE", "INSERT":
 		return nil, nil
 	default:
 		return nil, errors.New("unknown entity type")

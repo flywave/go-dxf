@@ -27,9 +27,11 @@ func GenCenterLine(col *geom.FeatureCollection, opt *CenterLineOpts) *geom.Featu
 		if c.GeometryData.Type != "LineString" {
 			continue
 		}
-		c.ID = c.Properties["id"]
 		if c.ID == nil {
-			c.ID = NewUUid32()
+			c.ID = c.Properties["id"]
+			if c.ID == nil {
+				c.ID = NewUUid32()
+			}
 		}
 		d := &RtreeNode{
 			Feature: c,
@@ -83,7 +85,7 @@ func buildRtree(col []*RtreeNode) *rtree.RTree {
 			c.Feature.BoundingBox = geom.BoundingBoxFromPoints(c.Feature.GeometryData.LineString)
 		}
 		bx := c.Feature.BoundingBox
-		tree.Insert([2]float64{bx[0], bx[1]}, [2]float64{bx[2], bx[3]}, c)
+		tree.Insert([2]float64{bx[0][0], bx[0][1]}, [2]float64{bx[1][0], bx[1][1]}, c)
 	}
 	return tree
 }

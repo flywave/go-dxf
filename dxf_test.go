@@ -377,8 +377,8 @@ func TestMeger2(t *testing.T) {
 		return
 	}
 
-	col, _ := general.UnmarshalFeatureCollection(d)
-	col2 := geom.GenCenterLine(col, &geom.CenterLineOpts{SearchExtend: 10, MaxWidth: 10, MinWidth: 1.5, LineMinlength: 10})
+	col2, _ := general.UnmarshalFeatureCollection(d)
+	// col2 := geom.GenCenterLine(col, &geom.CenterLineOpts{SearchExtend: 10, MaxWidth: 10, MinWidth: 1.5, LineMinlength: 10})
 	geom.MegerCenterLine(col2, &geom.MegerOpts{SearchRadius: 10, Distance: 1})
 	bt, _ := col2.MarshalJSON()
 	os.WriteFile("testdata/meger2.json", bt, os.ModePerm)

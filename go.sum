@@ -7,6 +7,8 @@ github.com/flywave/go-geom v0.0.0-20231226015933-6fd77bb6c2f4 h1:D61CZCyVmTAjUTw
 github.com/flywave/go-geom v0.0.0-20231226015933-6fd77bb6c2f4/go.mod h1:3oW6Cc3X/emCUZGUuTo5a+5H9EiPWi7MV3R00ONbL4c=
 github.com/flywave/go3d v0.0.0-20231213061711-48d3c5834480 h1:1y+JqyVE3cvragTKxXwks4Yc0qkConMpxIeXBTlZsmI=
 github.com/flywave/go3d v0.0.0-20231213061711-48d3c5834480/go.mod h1:bvblxPT+cF0zgDi71CuusPPWCwqU0SikE9ySl2NzeQw=
+github.com/flywave/go3d v0.0.0-20231225024313-0ec3c9c64b46 h1:gBmdiv2rKlAaZw4Bl3ogr5Yg/gVGr4BXhORX/5KxA+g=
+github.com/flywave/go3d v0.0.0-20231225024313-0ec3c9c64b46/go.mod h1:bvblxPT+cF0zgDi71CuusPPWCwqU0SikE9ySl2NzeQw=
 github.com/fogleman/gg v1.3.0/go.mod h1:R/bRT+9gY/C5z7JzPU0zXsXHKM4/ayA+zqcVNZzPa1k=
 github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0/go.mod h1:E/TSTwGwJL78qG/PmXZO1EjYhfJinVAhrmmHX6Z8B9k=
 github.com/google/uuid v1.0.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=

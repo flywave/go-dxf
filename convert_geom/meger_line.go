@@ -77,7 +77,12 @@ func connectLines(src *PointNode, dests []*PointNode, opt *MegerOpts) {
 			continue
 		}
 		if isParallel(src.normal, d.normal) {
-			dis := pointDistance(src.Point, d.Point)
+			// dis := pointDistance(src.Point, d.Point)
+			l1 := src.Feature.GeometryData.LineString
+			l2 := d.Feature.GeometryData.LineString
+
+			d1, d2 := coumputedistance(l1, l2)
+			dis := math.Min(d1, d2)
 			if minDist > dis && opt.Distance > dis {
 				minDist = dis
 				destNodes = append(destNodes, d)

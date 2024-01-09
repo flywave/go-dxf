@@ -138,8 +138,10 @@ func genMind(src *RtreeNode, dests []*RtreeNode, opt *CenterLineOpts) *geom.Feat
 		return nil
 	}
 
-	line := coumputeMidline(src, destNode)
-	return geom.NewLineStringFeature(line)
+	f := coumputeMidline(src, destNode)
+	f.Properties["src"] = src.Feature.ID
+	f.Properties["dest"] = destNode.Feature.ID
+	return f
 }
 
 func isUnique(f *geom.Feature, fs []*geom.Feature, mp map[interface{}]bool) {

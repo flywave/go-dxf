@@ -3,6 +3,7 @@ package geom
 import (
 	"math"
 
+	"github.com/flywave/go-geom"
 	vec2d "github.com/flywave/go3d/float64/vec2"
 )
 
@@ -69,7 +70,7 @@ func coumputedistance(src, dest [][]float64) (float64, float64) {
 	return d1, d2
 }
 
-func coumputeMidline(src, dest *RtreeNode) [][]float64 {
+func coumputeMidline(src, dest *RtreeNode) *geom.Feature {
 	src.genMap[dest.Id] = true
 	dest.genMap[src.Id] = true
 	v11 := &vec2d.T{src.Feature.GeometryData.LineString[0][0], src.Feature.GeometryData.LineString[0][1]}
@@ -89,7 +90,8 @@ func coumputeMidline(src, dest *RtreeNode) [][]float64 {
 		d2 = v12.Add(v22).Scale(0.5)
 	}
 
-	return [][]float64{{d1[0], d1[1], 0}, {d2[0], d2[1], 0}}
+	line := [][]float64{{d1[0], d1[1], 0}, {d2[0], d2[1], 0}}
+	return geom.NewLineStringFeature(line)
 }
 
 func HasIntersection(p *vec2d.T, x1 *vec2d.T, x2 *vec2d.T) bool {

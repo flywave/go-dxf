@@ -335,18 +335,20 @@ func TestDistance(t *testing.T) {
 	fmt.Println(math.Sqrt(d2 * 2))
 }
 func TestDwg(t *testing.T) {
-	d, err := geom.ConvertToGeomFeatures("testdata/修改余吾煤业采掘工程平面图2023.9.26.dxf", "")
+	d, err := geom.ConvertToGeomFeatures("testdata/修改余吾煤业采掘工程平面图2023.9.26.dxf", false, "")
 	if err != nil {
 		t.Errorf("error, expected nil, got %v", err)
 		return
 	}
-	col := d["巷道导线点"]
-	bt, _ := col.MarshalJSON()
-	os.WriteFile("testdata/巷道导线点.json", bt, os.ModePerm)
+
+	for k, v := range d {
+		bt, _ := v.MarshalJSON()
+		os.WriteFile("testdata/余吾/"+k+".json", bt, os.ModePerm)
+	}
 }
 
 func TestDwg2(t *testing.T) {
-	d, err := geom.ConvertToGeomFeatures("testdata/11-3布尔台煤矿42煤采掘工程平面图.dxf", "")
+	d, err := geom.ConvertToGeomFeatures("testdata/11-3布尔台煤矿42煤采掘工程平面图.dxf", false, "")
 	if err != nil {
 		t.Errorf("error, expected nil, got %v", err)
 		return
@@ -408,4 +410,20 @@ func TestMeger4(t *testing.T) {
 	geom.MegerCenterLine(col2, &geom.MegerOpts{SearchRadius: 10, Distance: 2})
 	bt, _ := col2.MarshalJSON()
 	os.WriteFile("testdata/meger4.json", bt, os.ModePerm)
+}
+
+func TestMegerClosed(t *testing.T) {
+	opts := &geom.MegerOpts{}
+	opts.SearchRadius = 10
+	opts.Distance = 1
+	d, err := os.ReadFile("testdata/part.geojson")
+	if err != nil {
+		t.Errorf("error, expected nil, got %v", err)
+		return
+	}
+
+	col2, _ := general.UnmarshalFeatureCollection(d)
+	geom.MegerCenterLine(col2, opts)
+	bt, _ := col2.MarshalJSON()
+	os.WriteFile("testdata/meger5.json", bt, os.ModePerm)
 }

@@ -23,30 +23,28 @@ type MegerOpts struct {
 }
 
 func MegerCenterLine(fc *geom.FeatureCollection, opt *MegerOpts) {
-	allNode := []*PointNode{}
-	for _, f := range fc.Features {
-		if f.GeometryData.Type != "LineString" {
+	allRtNode := createRtreeNodes(fc)
+	tree := buildRtree(allRtNode)
+	fc.Features = []*geom.Feature{}
+	mp := make(map[string]bool)
+	for _, n := range allRtNode {
+		if _, ok := mp[n.Id]; ok {
 			continue
 		}
-
-		f.ID = f.Properties["id"]
-		if f.ID == nil {
-			f.ID = NewUUid32()
-		}
-
-		for i, p := range f.GeometryData.LineString {
-			n := &PointNode{
-				Feature: f,
-				Id:      f.ID.(string),
-				Point:   p,
-				Index:   i,
-				normal:  normal(f.GeometryData.LineString),
-			}
-			allNode = append(allNode, n)
-		}
+		nds := []*RtreeNode{}
+		bx := n.Feature.BoundingBox
+		tree.Search([2]float64{bx[0][0] - opt.SearchRadius, bx[0][1] - opt.SearchRadius}, [2]float64{bx[1][0] + opt.SearchRadius, bx[1][1] + opt.SearchRadius},
+			func(min, max [2]float64, v interface{}) bool {
+				node := v.(*RtreeNode)
+				nds = append(nds, node)
+				return true
+			})
+		f := findAndMegerLine(n, nds, mp)
+		fc.Features = append(fc.Features, f)
 	}
 
-	tree := buildPointRtree(allNode)
+	allNode := createNodes(fc)
+	tree = buildPointRtree(allNode)
 	for _, n := range allNode {
 		if n.visited {
 			continue
@@ -77,7 +75,6 @@ func connectLines(src *PointNode, dests []*PointNode, opt *MegerOpts) {
 			continue
 		}
 		if isParallel(src.normal, d.normal) {
-			// dis := pointDistance(src.Point, d.Point)
 			l1 := src.Feature.GeometryData.LineString
 			l2 := d.Feature.GeometryData.LineString
 
@@ -116,6 +113,48 @@ func connectLines(src *PointNode, dests []*PointNode, opt *MegerOpts) {
 	}
 }
 
+func createNodes(fc *geom.FeatureCollection) []*PointNode {
+	allNode := []*PointNode{}
+	for _, f := range fc.Features {
+		if f.GeometryData.Type != "LineString" {
+			continue
+		}
+
+		checkId(f)
+		for i, p := range f.GeometryData.LineString {
+			n := &PointNode{
+				Feature: f,
+				Id:      f.ID.(string),
+				Point:   p,
+				Index:   i,
+				normal:  normal(f.GeometryData.LineString),
+			}
+			allNode = append(allNode, n)
+		}
+	}
+	return allNode
+}
+
+func createRtreeNodes(fc *geom.FeatureCollection) []*RtreeNode {
+	allNode := []*RtreeNode{}
+	for _, c := range fc.Features {
+		if c.GeometryData.Type != "LineString" {
+			continue
+		}
+		checkId(c)
+		length := length(c.GeometryData.LineString)
+		d := &RtreeNode{
+			Feature: c,
+			Id:      c.ID.(string),
+			genMap:  make(map[string]bool),
+			normal:  normal(c.GeometryData.LineString),
+			length:  length,
+		}
+		allNode = append(allNode, d)
+	}
+	return allNode
+}
+
 func buildPointRtree(col []*PointNode) *rtree.RTree {
 	tree := &rtree.RTree{}
 	for _, c := range col {
@@ -124,7 +163,38 @@ func buildPointRtree(col []*PointNode) *rtree.RTree {
 	return tree
 }
 
-func megerLine(v11, v12, v21, v22 *vec2d.T) [][]float64 {
+func findAndMegerLine(src *RtreeNode, nds []*RtreeNode, mp map[string]bool) *geom.Feature {
+	l := src.Feature.GeometryData.LineString
+	mp[src.Id] = true
+	for _, n := range nds {
+		if _, ok := mp[n.Id]; ok {
+			continue
+		}
+		if src.Id == n.Id {
+			continue
+		}
+		if !hasIntersection(src.Feature.GeometryData.LineString, n.Feature.GeometryData.LineString) {
+			continue
+		}
+		if isParallel(src.normal, n.normal) {
+			d1, d2 := coumputedistance(src.Feature.GeometryData.LineString, n.Feature.GeometryData.LineString)
+			dis := math.Max(d1, d2)
+			if dis < 1 {
+				mp[n.Id] = true
+				l = megerLine(l, n.Feature.GeometryData.LineString)
+			}
+		}
+	}
+	return geom.NewLineStringFeature(l)
+}
+
+func megerLine(l1, l2 [][]float64) [][]float64 {
+	v11 := &vec2d.T{l1[0][0], l1[0][1]}
+	v12 := &vec2d.T{l1[1][0], l1[1][1]}
+
+	v21 := &vec2d.T{l2[0][0], l2[0][1]}
+	v22 := &vec2d.T{l2[1][0], l2[1][1]}
+
 	p1 := vec2d.PointSegmentVerticalPoint(v11, v21, v22)
 	p11 := vec2d.Add(v11, p1)
 	p11.Scale(0.5)

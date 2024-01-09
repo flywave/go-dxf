@@ -10,7 +10,7 @@ import (
 	"github.com/pborman/uuid"
 )
 
-func ConvertToGeomFeatures(inputFile string, ty string) (map[string]*geom.FeatureCollection, error) {
+func ConvertToGeomFeatures(inputFile string, split bool, ty string) (map[string]*geom.FeatureCollection, error) {
 	draw, err := dxf.FromFile(inputFile)
 	if err != nil {
 		return nil, err
@@ -42,9 +42,14 @@ func ConvertToGeomFeatures(inputFile string, ty string) (map[string]*geom.Featur
 			l := [][]float64{ety.Start, ety.End}
 			f = geom.NewLineStringFeature(l)
 		case *entity.LwPolyline:
-			for i := 0; i < len(ety.Vertices)-1; i++ {
-				l := [][]float64{ety.Vertices[i], ety.Vertices[i+1]}
-				f = geom.NewLineStringFeature(l)
+			if split {
+				for i := 0; i < len(ety.Vertices)-1; i++ {
+					l := [][]float64{ety.Vertices[i], ety.Vertices[i+1]}
+					f = geom.NewLineStringFeature(l)
+					fn(layerName, f)
+				}
+			} else {
+				f = geom.NewLineStringFeature(ety.Vertices)
 				fn(layerName, f)
 			}
 			continue

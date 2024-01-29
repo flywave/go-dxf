@@ -335,7 +335,7 @@ func TestDistance(t *testing.T) {
 	fmt.Println(math.Sqrt(d2 * 2))
 }
 func TestDwg(t *testing.T) {
-	d, err := geom.ConvertToGeomFeatures("testdata/修改余吾煤业采掘工程平面图2023.9.26.dxf", false, "")
+	d, err := geom.ConvertToGeomFeatures("testdata/修改余吾煤业采掘工程平面图2023.9.26.dxf", "")
 	if err != nil {
 		t.Errorf("error, expected nil, got %v", err)
 		return
@@ -348,7 +348,7 @@ func TestDwg(t *testing.T) {
 }
 
 func TestDwg2(t *testing.T) {
-	d, err := geom.ConvertToGeomFeatures("testdata/11-3布尔台煤矿42煤采掘工程平面图.dxf", false, "")
+	d, err := geom.ConvertToGeomFeatures("testdata/11-3布尔台煤矿42煤采掘工程平面图.dxf", "")
 	if err != nil {
 		t.Errorf("error, expected nil, got %v", err)
 		return
